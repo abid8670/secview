@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SecView v4.0 — Security Intelligence SaaS</title>
+<style>
+:root {
+  --navy: #00243C;
+  --teal: #005B64;
+  --gold: #BD8839;
+  --gold2: #D4A03A;
+  --bg: #081120;
+  --card: #0F1E35;
+  --card2: #0B1828;
+  --border: #1C3552;
+  --text: #E8F1F8;
+  --muted: #7A8CA6;
+  --green: #2D8A5C;
+  --yellow: #D4A03A;
+  --red: #C04030;
+  --blue: #3A7BD5;
+  --sidebar-w: 250px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* ══ SIDEBAR ══ */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: linear-gradient(180deg, var(--navy) 0%, var(--teal) 100%);
+  border-right: 1px solid rgba(189,136,57,0.4);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+}
+
+.sidebar-brand {
+  padding: 1.4rem 1.2rem;
+  border-bottom: 1px solid rgba(189,136,57,0.25);
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.brand-icon {
+  width: 40px; height: 40px;
+  background: linear-gradient(135deg, var(--gold), var(--gold2));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; color: var(--navy); font-weight: 800;
+  box-shadow: 0 3px 10px rgba(189,136,57,0.4);
+}
+
+.brand-text .brand-name {
+  font-size: 1.05rem; font-weight: 700; color: var(--gold);
+  letter-spacing: 0.3px;
+}
+.brand-text .brand-sub {
+  font-size: 0.68rem; color: var(--muted); margin-top: 1px;
+}
+
+.sidebar-section {
+  padding: 0.9rem 0.7rem 0.3rem;
+  font-size: 0.62rem; font-weight: 700;
+  color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase;
+}
+
+.sidebar-item {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.65rem 1rem;
+  margin: 0 0.5rem;
+  border-radius: 7px;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.88rem;
+  cursor: pointer;
+  border: none; background: transparent; width: calc(100% - 1rem);
+  text-align: left;
+  transition: all 0.18s ease;
+}
+
+.sidebar-item:hover {
+  background: rgba(189,136,57,0.12);
+  color: var(--text);
+}
+
+.sidebar-item.active {
+  background: rgba(189,136,57,0.25);
+  color: var(--gold);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.sidebar-item .icon { font-size: 1.05rem; width: 22px; text-align: center; }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 1rem;
+  border-top: 1px solid rgba(189,136,57,0.2);
+  font-size: 0.68rem;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ══ MAIN ══ */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  padding: 2rem;
+  min-height: 100vh;
+}
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.8rem;
+  padding: 1rem 1.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.topbar h1 { font-size: 1.5rem; font-weight: 700; color: var(--gold); }
+.topbar p { color: var(--muted); font-size: 0.85rem; margin-top: 0.15rem; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.35rem 0.9rem; border-radius: 20px;
+  font-size: 0.78rem; font-weight: 600;
+}
+.badge-ok { background: rgba(45,138,92,0.2); color: var(--green); }
+.badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+/* ══ PANELS ══ */
+.panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+  display: none;
+}
+.panel.active { display: block; }
+
+.panel h3 {
+  font-size: 1.05rem; font-weight: 700; color: var(--gold);
+  margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+}
+
+.panel h3 .num {
+  width: 26px; height: 26px; border-radius: 6px;
+  background: rgba(189,136,57,0.2); color: var(--gold);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 0.8rem;
+}
+
+.form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.form-group { flex: 1; min-width: 180px; margin-bottom: 0.9rem; }
+
+.form-group label {
+  display: block; color: var(--muted); font-size: 0.8rem;
+  margin-bottom: 0.35rem; font-weight: 600;
+}
+
+.form-group input, .form-group select {
+  width: 100%; padding: 0.65rem 0.9rem;
+  background: var(--card2); border: 1px solid var(--border);
+  border-radius: 6px; color: var(--text); font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  border-color: var(--gold); outline: none;
+  box-shadow: 0 0 0 3px rgba(189,136,57,0.15);
+}
+
+/* ══ BUTTONS ══ */
+.btn {
+  padding: 0.65rem 1.4rem; border: none; border-radius: 6px;
+  cursor: pointer; font-size: 0.9rem; font-weight: 600;
+  transition: all 0.18s; display: inline-flex; align-items: center; gap: 0.4rem;
+}
+.btn-primary { background: var(--teal); color: #fff; }
+.btn-primary:hover { background: #00707A; transform: translateY(-1px); }
+.btn-gold { background: var(--gold); color: var(--navy); }
+.btn-gold:hover { background: var(--gold2); transform: translateY(-1px); }
+
+.btn-row { display: flex; gap: 0.7rem; flex-wrap: wrap; margin-top: 0.5rem; }
+
+/* ══ OUTPUT ══ */
+.output {
+  margin-top: 1.2rem;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.2rem;
+  min-height: 100px;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.85rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.output .placeholder {
+  color: var(--muted); font-style: italic;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 80px;
+}
+
+/* ══ USAGE TIP ══ */
+.usage-tip {
+  background: rgba(212,160,58,0.12);
+  border: 1px solid rgba(212,160,58,0.3);
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  color: var(--yellow);
+  font-size: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+
+/* ══ CVE CARD ══ */
+.cve-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.2rem;
+}
+.cve-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+}
+.cve-id {
+  font-size: 1.3rem; font-weight: 700; color: var(--gold);
+}
+.cve-state {
+  font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 10px;
+  background: rgba(45,138,92,0.15); color: var(--green); font-size: 0.75rem;
+}
+.cve-title {
+  font-size: 1.05rem; font-weight: 600; color: var(--text);
+  margin: 0.6rem 0;
+}
+.cve-desc {
+  color: var(--muted); font-size: 0.9rem; line-height: 1.6;
+  margin: 0.5rem 0;
+}
+.cve-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.8rem;
+  margin: 0.8rem 0;
+}
+.cve-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+}
+.cve-item .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; }
+.cve-item .value { color: var(--text); font-size: 0.95rem; margin-top: 0.2rem; }
+.cve-section { margin-top: 1rem; }
+.cve-section .section-title {
+  font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+.cve-section ul { padding-left: 1.2rem; margin: 0; }
+.cve-section li { font-size: 0.85rem; color: var(--text); margin-bottom: 0.3rem; }
+.cve-section a { color: var(--gold); }
+
+/* ══ HOST CARD ══ */
+.host-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.2rem;
+}
+.host-card h4 {
+  color: var(--gold); font-size: 1.2rem; margin-bottom: 0.6rem;
+}
+.host-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+.host-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+}
+.host-item .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; }
+.host-item .value { color: var(--text); font-size: 0.95rem; margin-top: 0.2rem; }
+
+.port-list {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem;
+}
+.port-tag {
+  background: rgba(58,123,213,0.15); color: var(--blue);
+  padding: 0.2rem 0.6rem; border-radius: 4px;
+  font-size: 0.78rem; font-family: 'Consolas', monospace;
+}
+
+/* ══ JSON VIEW (formatted) ══ */
+.json-view {
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 0.82rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--text);
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 0.8rem;
+  line-height: 1.6;
+}
+
+/* ══ FOOTER ══ */
+.footer {
+  text-align: center; padding: 1.5rem; color: var(--muted);
+  font-size: 0.75rem; margin-top: 2rem;
+}
+
+@media (max-width: 900px) {
+  .sidebar { width: 60px; }
+  .sidebar-item span.label, .brand-text, .sidebar-section, .sidebar-footer { display: none; }
+  .sidebar-brand { justify-content: center; padding: 1rem; }
+  .main { margin-left: 60px; }
+}
+</style>
+.loading {
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 2rem; color: var(--muted);
+}
+.loading.show { display: flex; }
+.spinner {
+  width: 28px; height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 0.8rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ══ KEV TABLE ══ */
+.kev-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; }
+.kev-table th {
+  text-align: left; padding: 0.5rem 0.7rem;
+  color: var(--muted); font-size: 0.75rem; font-weight: 700;
+  border-bottom: 1px solid var(--border);
+}
+.kev-table td {
+  padding: 0.45rem 0.7rem; font-size: 0.85rem;
+  border-bottom: 1px solid rgba(30,58,92,0.5);
+}
+.kev-table tr:hover td { background: rgba(189,136,57,0.06); }
+.sev { font-weight: 700; }
+.sev-crit { color: #FF6B6B; }
+.sev-high { color: #FFA94D; }
+.sev-med  { color: var(--yellow); }
+.sev-low  { color: var(--green); }
+
+/* ══ SHODAN CARDS ══ */
+.host-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.2rem;
+  margin-top: 1rem;
+}
+.host-card h4 {
+  color: var(--gold); font-size: 1.1rem; margin-bottom: 0.6rem;
+}
+.host-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+.host-item {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+}
+.host-item .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; }
+.host-item .value { color: var(--text); font-size: 0.9rem; margin-top: 0.2rem; }
+
+.port-list {
+  display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem;
+}
+.port-tag {
+  background: rgba(58,123,213,0.15); color: var(--blue);
+  padding: 0.2rem 0.6rem; border-radius: 4px;
+  font-size: 0.78rem; font-family: 'Consolas', monospace;
+}
+
+/* ══ FOOTER ══ */
+.footer {
+  text-align: center; padding: 1.5rem; color: var(--muted);
+  font-size: 0.75rem; margin-top: 2rem;
+}
+
+@media (max-width: 900px) {
+  .sidebar { width: 60px; }
+  .sidebar-item span.label, .brand-text, .sidebar-section, .sidebar-footer { display: none; }
+  .sidebar-brand { justify-content: center; padding: 1rem; }
+  .main { margin-left: 60px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">◈</div>
+    <div class="brand-text">
+      <div class="brand-name">SecView</div>
+      <div class="brand-sub">Tool v4.0 · Open SaaS</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">Threat Intelligence</div>
+  <button class="sidebar-item active" onclick="showPanel('cve')">
+    <span class="icon">🔍</span><span class="label">CVE Lookup</span>
+  </button>
+  <button class="sidebar-item" onclick="showPanel('kev')">
+    <span class="icon">🚨</span><span class="label">CISA KEV Feed</span>
+  </button>
+  <button class="sidebar-item" onclick="showPanel('search')">
+    <span class="icon">📦</span><span class="label">Vuln Search</span>
+  </button>
+  <button class="sidebar-item" onclick="showPanel('cpe')">
+    <span class="icon">🏷️</span><span class="label">CPE Search</span>
+  </button>
+
+  <div class="sidebar-section">Network Scanning</div>
+  <button class="sidebar-item" onclick="showPanel('shodan')">
+    <span class="icon">🌐</span><span class="label">Shodan Host Scan</span>
+  </button>
+  <button class="sidebar-item" onclick="showPanel('urlscan')">
+    <span class="icon">🔗</span><span class="label">URLScan</span>
+  </button>
+  <button class="sidebar-item" onclick="showPanel('ipinfo')">
+    <span class="icon">📍</span><span class="label">IPinfo Lookup</span>
+  </button>
+  <button class="sidebar-item" onclick="showPanel('dshield')">
+    <span class="icon">🛡️</span><span class="label">DShield ISC</span>
+  </button>
+
+  <div class="sidebar-section">Tools</div>
+  <button class="sidebar-item" onclick="showPanel('email')">
+    <span class="icon">✉️</span><span class="label">Email Reputation</span>
+  </button>
+  <button class="sidebar-item" onclick="showPanel('export')">
+    <span class="icon">💾</span><span class="label">Export Data</span>
+  </button>
+
+  <div class="sidebar-footer">
+    Free APIs · No Key Required<br>
+    github.com/abid8670/secview
+  </div>
+</aside>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <div>
+      <h1 id="pageTitle">CVE Lookup</h1>
+      <p id="pageDesc">Search CVE details from CIRCL database</p>
+    </div>
+    <span class="badge badge-ok" id="statusBadge"><span class="dot"></span>Live</span>
+  </div>
+
+  <!-- CVE -->
+  <div class="panel active" id="panel-cve">
+    <h3><span class="num">1</span> CVE Lookup</h3>
+    <div class="form-group">
+      <label>CVE ID</label>
+      <input type="text" id="cveInput" placeholder="e.g. CVE-2021-44228">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doLookup('cve')">🔍 Search</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">🔍 CVE Lookup: Enter a CVE ID (e.g. CVE-2021-44228) to see full vulnerability details — description, CVSS score, affected products, and references.</div>
+    </div>
+    <div class="output" id="cveOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- KEV -->
+  <div class="panel" id="panel-kev">
+    <h3><span class="num">2</span> CISA KEV Feed</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Items to show</label>
+        <input type="number" id="kevCount" value="20" min="1" max="100">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doLookup('kev')">🚨 Load Feed</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">🚨 CISA KEV: Latest known-exploited vulnerabilities from CISA with exploitation status and reason.</div>
+    </div>
+    <div class="output" id="kevOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- Vuln Search -->
+  <div class="panel" id="panel-search">
+    <h3><span class="num">3</span> Vuln Search</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Vendor</label>
+        <input type="text" id="vendorInput" placeholder="e.g. apache">
+      </div>
+      <div class="form-group">
+        <label>Product</label>
+        <input type="text" id="productInput" placeholder="e.g. httpd">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doLookup('search')">📦 Search</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">📦 Vuln Search: Search CVE database by vendor and product name to find related vulnerabilities.</div>
+    </div>
+    <div class="output" id="searchOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- CPE -->
+  <div class="panel" id="panel-cpe">
+    <h3><span class="num">4</span> CPE Search</h3>
+    <div class="form-group">
+      <label>CPE URI</label>
+      <input type="text" id="cpeInput" placeholder="cpe:2.3:*:apache:httpd:*:*:*:*:*:*:*">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doLookup('cpe')">🏷️ Search</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">🏷️ CPE Search: Find CVEs for a specific CPE (Common Platform Enumeration) product string.</div>
+    </div>
+    <div class="output" id="cpeOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- Shodan Host -->
+  <div class="panel" id="panel-shodan">
+    <h3><span class="num">5</span> Shodan Host Scan</h3>
+    <div class="form-group">
+      <label>IP Address or Hostname</label>
+      <input type="text" id="shodanIp" placeholder="e.g. 8.8.8.8">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doShodanHost()">🌐 Scan Host</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">🌐 Shodan Host: Free network scan — shows open ports, services, organization, ASN, and country. (No API key needed)</div>
+    </div>
+    <div class="output" id="shodanOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- URLScan -->
+  <div class="panel" id="panel-urlscan">
+    <h3><span class="num">6</span> URLScan.io</h3>
+    <div class="form-group">
+      <label>Domain</label>
+      <input type="text" id="urlscanDomain" placeholder="e.g. github.com">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doURLScan()">🔗 Scan Domain</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">🔗 URLScan: Scan any domain and see all URLs, IPs, and server headers found during the scan. (Free, no key)</div>
+    </div>
+    <div class="output" id="urlscanOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- IPinfo -->
+  <div class="panel" id="panel-ipinfo">
+    <h3><span class="num">7</span> IPinfo Lookup</h3>
+    <div class="form-group">
+      <label>IP Address</label>
+      <input type="text" id="ipInput" placeholder="e.g. 8.8.8.8">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doLookup('ipinfo')">📍 Lookup</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">📍 IPinfo: Free IP geolocation — shows country, city, ISP, ASN, timezone, and coordinates for any IP address.</div>
+    </div>
+    <div class="output" id="ipinfoOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- DShield -->
+  <div class="panel" id="panel-dshield">
+    <h3><span class="num">8</span> DShield ISC</h3>
+    <div class="form-group">
+      <label>IP Address</label>
+      <input type="text" id="dshieldInput" placeholder="e.g. 8.8.8.8">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doLookup('dshield')">🛡️ Lookup</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">🛡️ DShield ISC: SANS Internet Storm Center network threat feed for an IP address. (API returns HTML — try another IP)</div>
+    </div>
+    <div class="output" id="dshieldOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- Email -->
+  <div class="panel" id="panel-email">
+    <h3><span class="num">9</span> Email Reputation</h3>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="text" id="emailInput" placeholder="e.g. test@example.com">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="doLookup('email')">✉️ Lookup</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">✉️ Email Reputation: Check email sender reputation and spam risk via EmailRep API. (Free, no key)</div>
+    </div>
+    <div class="output" id="emailOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <!-- Export -->
+  <div class="panel" id="panel-export">
+    <h3><span class="num">10</span> Export Data</h3>
+    <div class="form-group">
+      <label>Filename (without extension)</label>
+      <input type="text" id="exportFilename" placeholder="my-export">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-gold" onclick="doExport('json')">💾 Export JSON</button>
+      <button class="btn btn-gold" onclick="doExport('csv')">📄 Export CSV</button>
+    </div>
+    <div class="usage-wrap">
+      <div class="usage-tip">💾 Export: Download current results as JSON or CSV file for offline analysis.</div>
+    </div>
+    <div class="output" id="exportOutput"><div class="placeholder">Results will appear here…</div></div>
+  </div>
+
+  <div class="footer">
+    SecView v4.0 · Security Intelligence SaaS<br>
+    Free Public APIs · No Key Required · github.com/abid8670/secview
+  </div>
+</div>
+
+<script>
+const TITLES = {
+  cve:     ['CVE Lookup',           'Search CVE details from CIRCL database'],
+  kev:     ['CISA KEV Feed',        'Known Exploited Vulnerabilities from CISA'],
+  search:  ['Vulnerability Search', 'Search by vendor and product'],
+  cpe:     ['CPE Search',           'Search by CPE URI'],
+  shodan:  ['Shodan Host Scan',     'Scan IP/host via SHODAN (ports, services, org)'],
+  urlscan: ['URLScan',              'Scan URLs/domains via urlscan.io'],
+  ipinfo:  ['IPinfo Lookup',        'IP geolocation and threat intelligence'],
+  dshield: ['DShield ISC',          'SANS Internet Storm Center lookup'],
+  email:   ['Email Reputation',     'Email reputation and suspicious check'],
+  export:  ['Export Data',          'Export results to JSON or CSV'],
+};
+
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.getElementById('pageTitle').textContent = TITLES[id][0];
+  document.getElementById('pageDesc').textContent = TITLES[id][1];
+}
+
+function showLoading(outputId) {
+  const el = document.getElementById(outputId);
+  el.innerHTML = '<div class="loading show" style="display:flex;"><div class="spinner"></div><span>Loading…</span></div>';
+}
+
+function showError(outputId, msg) {
+  const el = document.getElementById(outputId);
+  el.innerHTML = '<span style="color:#FF6B6B">⚠ ' + msg + '</span>';
+}
+
+function showJSON(outputId, data) {
+  const el = document.getElementById(outputId);
+  el.textContent = JSON.stringify(data, null, 2);
+}
+
+async function doLookup(type) {
+  const payloads = {
+    cve:     { cve: document.getElementById('cveInput').value },
+    kev:     { count: parseInt(document.getElementById('kevCount').value) || 20 },
+    search:  { vendor: document.getElementById('vendorInput').value, product: document.getElementById('productInput').value },
+    cpe:     { cpe: document.getElementById('cpeInput').value },
+    ipinfo:  { ip: document.getElementById('ipInput').value },
+    dshield: { ip: document.getElementById('dshieldInput').value },
+    email:   { email: document.getElementById('emailInput').value },
+  };
+
+  const outputId = type + 'Output';
+  const url = '/api/' + type;
+  const payload = payloads[type];
+
+  const empty = Object.entries(payload).filter(([k,v]) => !v || v === '');
+  if (empty.length > 0) {
+    showError(outputId, 'Please fill in all fields');
+    return;
+  }
+
+  // Show one-line usage hint
+  const usageTips = {
+    cve: 'Example: CVE-2021-44228 (Log4j)',
+    kev: 'Shows real-world exploited vulnerabilities',
+    search: 'Example: vendor=apache product=httpd',
+    cpe: 'Example: cpe:2.3:*:apache:httpd',
+    shodan: 'Scan any IP/host for open ports & services',
+    urlscan: 'Scan a domain for scanned URLs',
+    ipinfo: 'Look up IP geolocation & ISP',
+    dshield: 'View SANS ISC network threat feed',
+    email: 'Check email sender reputation',
+    export: 'Download results as JSON or CSV',
+  };
+  if (usageTips[type]) {
+    document.getElementById(outputId).innerHTML = '<div class="usage-tip">💡 ' + usageTips[type] + '</div>' + document.getElementById(outputId).innerHTML;
+  }
+
+  showLoading(outputId);
+
+  try {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json();
+
+  if (!json.ok) {
+    showError(outputId, json.error || 'Request failed');
+    return;
+  }
+
+  if (type === 'kev') {
+    renderKEV(outputId, json.data);
+  } else if (type === 'cve') {
+    renderCVE(outputId, json.data);
+  } else if (type === 'search') {
+    renderSearch(outputId, json.data);
+  } else if (type === 'cpe') {
+    renderCPE(outputId, json.data);
+  } else if (type === 'shodan') {
+    renderShodanHost(outputId, json.data);
+  } else if (type === 'urlscan') {
+    renderURLScan(outputId, json.data);
+  } else if (type === 'ipinfo') {
+    renderIPInfo(outputId, json.data);
+  } else if (type === 'dshield') {
+    renderDShield(outputId, json.data);
+  } else if (type === 'email') {
+    renderEmail(outputId, json.data);
+  } else if (type === 'export') {
+    renderExport(outputId, json.data);
+  }
+  } catch (e) {
+    showError(outputId, 'Network error: ' + e.message);
+  }
+}
+
+function renderCVE(outputId, d) {
+  const el = document.getElementById(outputId);
+  const sev = d.cvssSeverity || '?';
+  let sevColor = '#2D8A5C';
+  if (sev === 'CRITICAL' || sev === 'HIGH') sevColor = '#FF6B6B';
+  else if (sev === 'MEDIUM') sevColor = '#D4A03A';
+  else if (sev === 'LOW') sevColor = '#2D8A5C';
+
+  let html = '<div class="cve-card">';
+  html += '<div class="cve-header">';
+  html += '<span class="cve-id">' + (d.cveId || '?') + '</span>';
+  html += '<span class="cve-state">' + (d.state || '?') + '</span>';
+  html += '</div>';
+  if (d.title) html += '<div class="cve-title">' + d.title + '</div>';
+  if (d.description) html += '<div class="cve-desc">' + d.description + '</div>';
+  html += '<div class="cve-grid">';
+  if (d.cvssScore) {
+    html += '<div class="cve-item"><div class="label">CVSS Score</div><div class="value" style="color:' + sevColor + ';font-weight:700;">' + d.cvssScore + ' (' + sev + ')</div></div>';
+  }
+  html += '<div class="cve-item"><div class="label">Published</div><div class="value">' + (d.published||'?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">Updated</div><div class="value">' + (d.updated||'?') + '</div></div>';
+  html += '</div>';
+  if (d.affected && d.affected.length) {
+    html += '<div class="cve-section"><div class="section-title">Affected Products</div><ul>';
+    d.affected.forEach(a => { html += '<li>' + a + '</li>'; });
+    html += '</ul></div>';
+  }
+  if (d.references && d.references.length) {
+    html += '<div class="cve-section"><div class="section-title">References</div><ul>';
+    d.references.forEach(r => { html += '<li><a href="' + r + '" target="_blank" style="color:var(--gold);">' + r + '</a></li>'; });
+    html += '</ul></div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderKEV(outputId, data) {
+  const el = document.getElementById(outputId);
+  const items = data.data || [];
+  const total = data.metadata ? data.metadata.count : 0;
+
+  let html = '<div style="color:var(--muted);margin-bottom:0.6rem;">Total: ' + total + ' CVEs</div>';
+  html += '<table class="kev-table"><tr><th>CVE ID</th><th>Severity</th><th>Reason</th></tr>';
+  items.forEach(item => {
+    const v = item.vulnerability || {};
+    const s = item.status || {};
+    const scope = item.scope || {};
+    const scopeText = scope.notes || '';
+    // Extract CVSS from scope notes (e.g. "CVSS: 7.1 (HIGH)")
+    let severity = 0;
+    let severityLabel = '?';
+    const cvssMatch = scopeText.match(/CVSS:\s*([\d.]+)\s*\(([^)]+)\)/i);
+    if (cvssMatch) {
+      severity = parseFloat(cvssMatch[1]) * 10;
+      severityLabel = cvssMatch[2];
+    }
+    let cls = 'sev-low';
+    if (severity >= 90) cls = 'sev-crit';
+    else if (severity >= 70) cls = 'sev-high';
+    else if (severity >= 40) cls = 'sev-med';
+    const vulnId = v.vulnId || '?';
+    const reason = s.status_reason || (scopeText.slice(0, 80) + '…');
+    html += '<tr><td><strong>' + vulnId + '</strong></td>';
+    html += '<td class="sev ' + cls + '">' + severityLabel + '</td>';
+    html += '<td>' + reason + '</td></tr>';
+  });
+  html += '</table>';
+  el.innerHTML = html;
+}
+
+function renderSearch(outputId, data) {
+  const el = document.getElementById(outputId);
+  const results = data.results || {};
+  const total = data.total_count || 0;
+  const items = results instanceof Array ? results : Object.values(results);
+  if (!items.length) {
+    el.innerHTML = '<div style="color:#FF6B6B">⚠ No CVEs found for this vendor/product combination.</div>';
+    return;
+  }
+  let html = '<div style="color:var(--muted);margin-bottom:0.6rem;">Total: ' + total + ' CVEs</div>';
+  html += '<div class="cve-card">';
+  items.forEach((cve, i) => {
+    const id = cve.id || cve.cveId || 'CVE-' + (i + 1);
+    const summary = cve.summary || cve.description || 'No summary available.';
+    const cvss = cve.cvss || cve.cvss_score || '?';
+    html += '<div class="cve-card" style="margin-bottom:0.8rem;padding:0.8rem 1rem;border:1px solid var(--border);border-radius:6px;">';
+    html += '<div style="font-weight:700;font-size:1.05rem;">' + id + '</div>';
+    html += '<div style="color:var(--muted);font-size:0.85rem;">' + summary.slice(0, 120) + '…</div>';
+    html += '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--gold);font-weight:600;">CVSS: ' + cvss + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderCPE(outputId, data) {
+  const el = document.getElementById(outputId);
+  const cpe = data.cpe || '?';
+  const matches = data.matches || data.results || data.cves || [];
+  if (!matches.length) {
+    el.innerHTML = '<div style="color:#FF6B6B">⚠ No CVEs found for this CPE ' + cpe + '.</div>';
+    return;
+  }
+  let html = '<div style="color:var(--muted);margin-bottom:0.6rem;">CPE: ' + cpe + ' &nbsp;|&nbsp; Matches: ' + matches.length + '</div>';
+  matches.forEach((m, i) => {
+    const cveId = m.cveId || m.cve || m.vuln || 'CVE-' + (i + 1);
+    const desc = m.description || m.summary || 'No description.';
+    const cvss = m.cvss || m.cvss_score || '?';
+    html += '<div class="cve-card" style="margin-bottom:0.6rem;padding:0.6rem 1rem;border:1px solid var(--border);border-radius:6px;">';
+    html += '<div style="font-weight:700;">' + cveId + '</div>';
+    html += '<div style="font-size:0.85rem;color:var(--muted);margin-top:0.2rem;">' + desc.slice(0, 150) + '…</div>';
+    html += '<div style="font-size:0.8rem;color:var(--gold);font-weight:600;">CVSS: ' + cvss + '</div>';
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderURLScan(outputId, data) {
+  const el = document.getElementById(outputId);
+  const results = data.results || [];
+  if (!results.length) {
+    el.innerHTML = '<div style="color:#FF6B6B">⚠ No results found for this domain.</div>';
+    return;
+  }
+  let html = '<div style="color:var(--muted);margin-bottom:0.6rem;">Total URLs found: ' + (data.total || results.length) + '</div>';
+  results.forEach((r, i) => {
+    const page = r.page || {};
+    const task = r.task || {};
+    html += '<div class="cve-card" style="margin-bottom:0.6rem;padding:0.6rem 1rem;border:1px solid var(--border);border-radius:6px;">';
+    html += '<div style="font-weight:700;">' + (page.url || 'unknown') + '</div>';
+    html += '<div style="font-size:0.82rem;color:var(--muted);">' + (task.url || 'unknown') + ' | ' + (page.ip || '?') + ' | ' + (page.status || '?') + ' | ' + (page.server || '?') + '</div>';
+    html += '<div style="font-size:0.8rem;color:var(--gold);">' + (page.title || '') + '</div>';
+    if (page.labels && page.labels.length) {
+      html += '<div style="font-size:0.75rem;color:var(--muted);margin-top:0.2rem;">' + page.labels.join(', ') + '</div>';
+    }
+    html += '</div>';
+  });
+  el.innerHTML = html;
+}
+
+function renderIPInfo(outputId, data) {
+  const el = document.getElementById(outputId);
+  const ip = data.ip || '?';
+  const loc = data.loc || 'N/A';
+  const parts = loc.split(',').map(p => p.trim());
+  const lat = parts.length > 0 ? parts[0] : '?';
+  const lon = parts.length > 1 ? parts[1] : '?';
+  let html = '<div class="cve-card">';
+  html += '<div style="font-weight:700;font-size:1.2rem;">' + ip + '</div>';
+  html += '<div class="cve-grid">';
+  html += '<div class="cve-item"><div class="label">City</div><div class="value">' + (data.city || '?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">Region</div><div class="value">' + (data.region || '?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">Country</div><div class="value">' + (data.country || '?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">Coordinates</div><div class="value">' + lat + ', ' + lon + '</div></div>';
+  html += '<div class="cve-item"><div class="label">ISP / Org</div><div class="value">' + (data.org || '?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">ASN</div><div class="value">' + (data.asn || '?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">Timezone</div><div class="value">' + (data.timezone || '?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">Postal</div><div class="value">' + (data.postal || '?') + '</div></div>';
+  html += '<div class="cve-item"><div class="label">Hostname</div><div class="value">' + (data.hostname || '?') + '</div></div>';
+  html += '</div>';
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderDShield(outputId, data) {
+  const el = document.getElementById(outputId);
+  if (typeof data === 'string') {
+    el.innerHTML = '<div style="color:#FF6B6B">⚠ DShield API returned HTML (not JSON). The endpoint is not responding with JSON.</div>';
+    return;
+  }
+  const text = data || '';
+  if (!text) {
+    el.innerHTML = '<div style="color:#FF6B6B">⚠ No data received from DShield.</div>';
+    return;
+  }
+  const lines = text.split('\r\n');
+  let html = '<div style="color:var(--muted);margin-bottom:0.6rem;">DShield ISC — SANS Internet Storm Center</div>';
+  html += '<div style="font-family:monospace;font-size:0.8rem;white-space:pre-wrap;background:#0d1117;padding:0.8rem;border:1px solid var(--border);border-radius:6px;">';
+  lines.forEach(l => { html += escapeHtml(l) + '<br>'; });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderEmail(outputId, data) {
+  const el = document.getElementById(outputId);
+  if (!data || typeof data !== 'object') {
+    el.innerHTML = '<div style="color:#FF6B6B">⚠ EmailRep API not responding (DNS or network issue).</div>';
+    return;
+  }
+  const keys = Object.keys(data);
+  if (!keys.length) {
+    el.innerHTML = '<div style="color:#FF6B6B">⚠ No data returned for this email.</div>';
+    return;
+  }
+  let html = '<div class="cve-card">';
+  html += '<div style="font-weight:700;font-size:1.05rem;">📧 ' + (data.email || data.address || '?') + '</div>';
+  Object.entries(data).forEach(([k, v]) => {
+    if (k === 'email' || k === 'address') return;
+    html += '<div class="cve-item"><div class="label">' + k + '</div><div class="value">' + (v || '?') + '</div></div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderExport(outputId, data) {
+  const el = document.getElementById(outputId);
+  if (data && data.file) {
+    el.innerHTML = '<div class="cve-card"><div style="color:#2D8A5C;font-weight:700;">✅ Export ready:</div><div style="font-size:0.9rem;color:var(--muted);">File: <span style="font-family:monospace;">' + data.file + '</span></div>';
+  } else {
+    el.innerHTML = '<div style="color:#FF6B6B;font-weight:700;">❌ Export failed</div>';
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function doShodanHost() {
+  const ip = document.getElementById('shodanIp').value;
+  if (!ip) { showError('shodanOutput', 'Please enter IP/host'); return; }
+  showLoading('shodanOutput');
+  try {
+    const res = await fetch('/api/shodan-host', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ip }),
+    });
+    const json = await res.json();
+    if (!json.ok) { showError('shodanOutput', json.error); return; }
+    renderShodanHost('shodanOutput', json.data);
+  } catch (e) {
+    showError('shodanOutput', e.message);
+  }
+}
+
+function renderShodanHost(outputId, d) {
+  const el = document.getElementById(outputId);
+  let html = '<div class="host-card">';
+  html += '<h4>🌐 ' + (d.ip_str || '?') + '</h4>';
+  html += '<div class="host-grid">';
+  html += '<div class="host-item"><div class="label">Organization</div><div class="value">' + (d.org||'?') + '</div></div>';
+  html += '<div class="host-item"><div class="label">ISP</div><div class="value">' + (d.isp||'?') + '</div></div>';
+  html += '<div class="host-item"><div class="label">ASN</div><div class="value">' + (d.asn||'?') + '</div></div>';
+  html += '<div class="host-item"><div class="label">Country</div><div class="value">' + (d.country_name||'?') + ' (' + (d.country_code||'?') + ')</div></div>';
+  html += '<div class="host-item"><div class="label">City</div><div class="value">' + (d.city||'?') + '</div></div>';
+  html += '<div class="host-item"><div class="label">OS</div><div class="value">' + (d.os||'?') + '</div></div>';
+  html += '<div class="host-item"><div class="label">Hostnames</div><div class="value">' + (d.hostnames||[]).join(', ') + '</div></div>';
+  html += '<div class="host-item"><div class="label">Domains</div><div class="value">' + (d.domains||[]).join(', ') + '</div></div>';
+  html += '</div>';
+  html += '<div style="margin-top:0.8rem;"><div class="label" style="color:var(--muted);font-size:0.7rem;text-transform:uppercase;">Open Ports</div>';
+  html += '<div class="port-list">';
+  (d.ports||[]).forEach(p => {
+    html += '<span class="port-tag">' + p + '</span>';
+  });
+  html += '</div></div>';
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+async function doURLScan() {
+  const domain = document.getElementById('urlscanDomain').value;
+  if (!domain) { showError('urlscanOutput', 'Please enter domain'); return; }
+  showLoading('urlscanOutput');
+  try {
+    const res = await fetch('/api/urlscan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ domain }),
+    });
+    const json = await res.json();
+    if (!json.ok) { showError('urlscanOutput', json.error); return; }
+    renderURLScan('urlscanOutput', json.data);
+  } catch (e) {
+    showError('urlscanOutput', e.message);
+  }
+}
+
+async function doExport(fmt) {
+  const filename = document.getElementById('exportFilename').value || 'export';
+  const outputId = 'exportOutput';
+  showLoading(outputId);
+  try {
+    const res = await fetch('/api/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ format: fmt, filename }),
+    });
+    const json = await res.json();
+    if (json.ok) {
+      showJSON(outputId, { status: 'ok', file: json.file });
+    } else {
+      showError(outputId, json.error);
+    }
+  } catch (e) {
+    showError(outputId, e.message);
+  }
+}
+
+// Status check on load
+fetch('/api/status').then(r => r.json()).then(d => {
+  const badge = document.getElementById('statusBadge');
+  if (d.ok) {
+    badge.className = 'badge badge-ok';
+    badge.innerHTML = '<span class="dot"></span>Live';
+  }
+});
+</script>
+</body>
+</html>
